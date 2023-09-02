@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="profile-container">
+        <h1>Welcome, {{ user[3] }}</h1>
+        <a href="/my_profile">My Profile</a>
+        <a href="/view_books">View Book List</a>
+        <a href="/my_ratings">My Ratings</a>
+        {% if user[5] == 1 %}  <!-- Check if user is admin -->
+            <a href="/view_users">View User List</a>
+        {% endif %}
+        <a href="/">Login/Registration Page</a>
+        <a href="/logout">Logout</a>
+    </div>
+</body>
+</html>

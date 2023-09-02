@@ -1,0 +1,17 @@
+<!-- Include your CSS link here -->
+<h1>Login</h1>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    {% if error_message %}
+        <p class="error">{{ error_message }}</p>
+    {% endif %}
+<form action="/login" method="post">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required><br><br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required><br><br>
+    <input type="submit" value="Login">
+</form>
+</body>

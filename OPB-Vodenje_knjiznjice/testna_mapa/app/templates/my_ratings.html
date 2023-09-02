@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Ratings</title>
+</head>
+<body>
+    <h1>My Ratings</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Genre</th>
+                <th>My Rating</th>
+                <th>Current Rating</th>
+                <th>Total Ratings</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in my_ratings %}
+                <tr>
+                    <td>{{ book[1] }}</td>
+                    <td>{{ book[2] }} {{ book[3] }}</td>
+                    <td>{{ book[4] }}</td>
+                    <td>{{ book[8] }}</td>
+                    <td>{{ book[6] }}</td>
+                    <td>{{ book[7] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

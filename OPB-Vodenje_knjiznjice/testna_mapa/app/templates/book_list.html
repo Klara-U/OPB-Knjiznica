@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book List</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Book List</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Book ID</th>
+                <th>Title</th>
+                <th>Author First Name</th>
+                <th>Author Last Name</th>
+                <th>Genre</th>
+                <th>Status</th>
+                <th>Rating</th>
+                <th>Number of Ratings</th>
+                <th>Actions</th>
+                <th>Client ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+                <tr>
+                    <td>{{ book[0] }}</td>
+                    <td>{{ book[1] }}</td>
+                    <td>{{ book[2] }}</td> 
+                    <td>{{ book[3] }}</td>
+                    <td>{{ book[4] }}</td>
+                    <td>{{ book[5] }}</td>
+                    <td>{{ book[6] }}</td>
+                    <td>{{ book[7] }}</td>
+                    <!-- <td>{{ book[6] if book[5] != 'free' else 'N/A' }}</td> -->
+                    <!-- <td>
+                        {% if book[5] == 'free' %}
+                            <form method="POST" action="/reserve/{{ book[0] }}">
+                                <input type="submit" value="Reserve">
+                            </form>
+                        {% elif book[5] == 'reserved' %}
+                            <span class="reserved">Reserved by you</span>
+                        {% else %}
+                            <span class="not-available">This book can't be reserved right now</span>
+                        {% endif %}
+                    </td> -->
+                    <td>
+                        {% if book[5] == 'free' %}
+                            <form method="POST" action="/reserve_book">
+                                <input type="hidden" name="id_book" value="{{ book[0] }}">
+                                <input type="hidden" name="action" value="reserve">
+                                <input type="submit" value="Reserve">
+                            </form>
+                        {% elif book[5] == 'reserved' %}
+                            {% if book["id"] == id %}
+                                <form method="POST" action="/reserve_book">
+                                    <input type="hidden" name="id_book" value="{{ book[0] }}">
+                                    <input type="hidden" name="action" value="reserve">
+                                    <input type="submit" value="Cancel Reservation">
+                                </form>
+                            {% else %}
+                                Reserved
+                            {% endif %}
+                        {% else %}
+                            Not Available
+                        {% endif %}
+                    </td>
+                    <td>{{ book[7] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

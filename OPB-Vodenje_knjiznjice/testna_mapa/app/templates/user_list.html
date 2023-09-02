@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>User List</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Status</th>
+            <th>Gender</th>
+            <th>Age</th>
+        </tr>
+        {% for user in users %}
+            <tr>
+                <td>{{ user[0] }}</td>
+                <td>{{ user[1] }}</td>
+                <td>{{ user[2] }}</td>
+                <td>{{ user[3] }}</td>
+                <td>{{ 'Admin' if user[4] == 1 else 'Client' }}</td>
+                <td>{{ user[5] }}</td>
+                <td>{{ user[6] }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <a href="/profile">Back to Profile</a>
+</body>
+</html>

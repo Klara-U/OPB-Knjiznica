@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Query Result</h1>
+    <p>Name: {{ result.name }}</p>
+    <p>Age: {{ result.age }}</p>
+    <a href="/">Go back</a>
+</body>
+</html>

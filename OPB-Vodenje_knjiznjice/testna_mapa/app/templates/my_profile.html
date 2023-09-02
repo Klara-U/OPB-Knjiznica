@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="profile-container">
+        <h1>My Profile</h1>
+        <p>Name: {{ user[3] }}</p>
+        <p>Surname: {{ user[4] }}</p>
+        <p>Gender: {{ user[6] }}</p>
+        <p>Age: {{ user[7] }}</p>
+        <a href="/edit_profile"><img src="{{ url_for('static', filename='edit.png') }}" alt="Edit"></a>
+        <a href="/change_password"><img src="{{ url_for('static', filename='password.png') }}" alt="Change Password"></a>
+        <a href="/">Home</a>
+    </div>
+</body>
+</html>
