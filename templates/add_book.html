@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Add book{% endblock %}
+{% block content %}
+<div class="row align-items-center">
+    <div class="col-6 offset-3">
+        <div class="card">
+            <div class="card-header font-weight-bold">
+                Add book
+            </div>
+
+            <div class="card-body">
+                <form action="/add_book" method="post">
+                    <label class="form-label" for="title">Title:</label>
+                    <input class="form-control" type="text" id="title" name="title" required><br>
+
+                    <label class="form-label" for="firstName">Author First Name:</label>
+                    <input class="form-control" type="text" id="firstName" name="firstName" required><br>
+
+                    <label class="form-label" for="lastName">Author Last Name:</label>
+                    <input class="form-control" type="text" id="lastName" name="lastName" required><br>
+
+                    <label class="form-label" for="genre">Genre (string):</label>
+                    <input class="form-control" type="text" id="genre" name="genre" required><br>
+                    
+                    <input class="btn btn-primary" type="submit" value="Add book">
+                </form>
+            </div>
+
+            {% if error_message %}
+                <p class="error">{{ error_message }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

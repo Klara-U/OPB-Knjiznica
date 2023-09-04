@@ -1,16 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
-import os
+import psycopg2, psycopg2.extensions, psycopg2.extras
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
-import psycopg2, psycopg2.extensions, psycopg2.extras
+
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE) # se znebimo problemov s sumniki
 conn = psycopg2.connect(database='opb2023_klarau', host='baza.fmf.uni-lj.si', user='klarau', password='4hoayx6s')
 conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) # onemogocimo transakcije
-
 
 # Initialize Flask-Login
 login_manager = LoginManager()
@@ -18,61 +16,52 @@ login_manager.init_app(app)
 
 # Initialize the database
 def initialize_database():
-
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY,
+            id SERIAL PRIMARY KEY,
             username TEXT UNIQUE,
             password TEXT,
             name TEXT,
             surname TEXT,
             is_admin INTEGER DEFAULT 0,
-            gender TEXT DEFAULT NULL,
-            age INTEGER DEFAULT NULL
-        )
+            gender TEXT,
+            age INTEGER
+        );
     ''')
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS books (
-            id_book INTEGER PRIMARY KEY,
+            id_book SERIAL PRIMARY KEY,
             title TEXT,
             author_first_name TEXT,
             author_last_name TEXT,
             genre TEXT,
             status TEXT,
-            rating FLOAT DEFAULT 0.0,  -- Initial rating is 0.0
-            num_ratings INTEGER DEFAULT 0,  -- Initial number of ratings is 0
-            user_id INTEGER DEFAULT NULL,  
-            FOREIGN KEY(user_id) REFERENCES users(id)
+            rating FLOAT DEFAULT 0.0,
+            num_ratings INTEGER DEFAULT 0,
+            user_id INTEGER REFERENCES users(id)
         );
     ''')
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS user_ratings (
-            id INTEGER PRIMARY KEY,
-            user_id INTEGER,
-            book_id INTEGER,
-            rating INTEGER,
-            FOREIGN KEY(user_id) REFERENCES users(id),
-            FOREIGN KEY(book_id) REFERENCES books(id_book)
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id),
+            book_id INTEGER REFERENCES books(id_book),
+            rating INTEGER
         );
     ''')
-
     conn.commit()
-    ()
 
 initialize_database()
 
 
 @app.route('/')
 def index():
-
     cursor = conn.cursor()
     cursor.execute('SELECT b.title, b.num_ratings, b.rating  FROM books b ORDER BY rating DESC LIMIT 5')
     top_rated = cursor.fetchall()
     cursor.execute('SELECT b.title, b.num_ratings, b.rating FROM books b ORDER BY num_ratings DESC LIMIT 5')
     most_reviewed = cursor.fetchall()
-    ()
-
     return render_template('index.html', top_rated=top_rated, most_reviewed=most_reviewed)
 
 @app.route('/admin_register', methods=['GET', 'POST'])
@@ -117,13 +106,12 @@ def admin_login():
 
 
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
+        cursor.execute('SELECT * FROM users WHERE username = %s', (username))
         user = cursor.fetchone()
-        ()
 
         if user and check_password_hash(user[2], password) and user[5] == 1:
             session['user'] = user
-            return redirect(url_for('admin_dashboard'))
+            return redirect(url_for('profile'))
         else:
             return "Invalid admin credentials."
 
@@ -141,11 +129,9 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
         user = cursor.fetchone()
-        ()
 
         if user and check_password_hash(user[2], password):
             session['user'] = user
@@ -174,18 +160,34 @@ def register():
             hashed_password = generate_password_hash(password, method='sha256')
 
             # Insert user data into the database
-
             cursor = conn.cursor()
             cursor.execute('INSERT INTO users (username, password, name, surname) VALUES (%s, %s, %s, %s)',
                            (username, hashed_password, name, surname))
             conn.commit()
-            ()
 
             return redirect(url_for('login'))
         else:
             return "Passwords do not match."
 
     return render_template('register.html')
+
+@app.route('/add_book', methods=['GET', 'POST'])
+def add_book():
+    if 'user' in session and session['user'][5] == 1:  # Check if user is admin
+        if request.method == 'POST':
+            # Extract user input
+            title = request.form['title']
+            firstName = request.form['firstName']
+            lastName = request.form['lastName']
+            genre = request.form['genre']
+            cursor = conn.cursor()
+            cursor.execute('INSERT INTO books (title, author_first_name, author_last_name, genre, status) VALUES (%s, %s, %s, %s, %s)',
+                           (title, firstName, lastName, genre, 'free'))
+            conn.commit()
+            flash('Book added!')
+
+    return render_template('add_book.html')
+
 
 @app.route('/profile')
 def profile():
@@ -214,7 +216,6 @@ def view_users():
         cursor = conn.cursor()
         cursor.execute('SELECT id, username, name, surname, is_admin, gender, age FROM users')
         users = cursor.fetchall()
-        ()
 
         return render_template('user_list.html', users=users)
     else:
@@ -227,7 +228,6 @@ def view_books():
         cursor = conn.cursor()
         cursor.execute('SELECT books.*, users.username FROM books LEFT JOIN users ON books.user_id = users.id ORDER BY books.rating DESC;')
         books = cursor.fetchall()
-        ()
         return render_template('book_list.html', books=books)
     else:
         return redirect(url_for('login'))
@@ -247,16 +247,13 @@ def reserve_book(book_id):
             cursor.execute('UPDATE books SET status = %s WHERE id_book = %s', ('reserved', book_id))
             cursor.execute('UPDATE books SET user_id = %s WHERE id_book = %s', (user_id, book_id))
             conn.commit()
-            ()
             flash('Reservation successful!')
         elif status == 'reserved' and reserved_by == user_id:
             cursor.execute('UPDATE books SET status = %s WHERE id_book = %s', ('free', book_id))
             cursor.execute('UPDATE books SET user_id = %s WHERE id_book = %s', (None, book_id))
             conn.commit()
-            ()
             flash('Return successful!')
         else:
-            ()
             flash('Sorry! You did not reserve this book.')
 
         return redirect(url_for('view_books'))
@@ -282,7 +279,6 @@ def edit_profile():
             cursor = conn.cursor()
             cursor.execute('UPDATE users SET gender = %s, age = %s WHERE id = %s', (gender, age, session['user'][0]))
             conn.commit()
-            ()
 
             # Update the session data immediately
             session['user'] = (session['user'][0], session['user'][1], session['user'][2], session['user'][3], session['user'][4], session['user'][5], gender, age)
@@ -309,7 +305,6 @@ def change_password():
                     cursor = conn.cursor()
                     cursor.execute('UPDATE users SET password = %s WHERE id = %s', (hashed_password, session['user'][0]))
                     conn.commit()
-                    ()
                     return redirect(url_for('my_profile'))
                 else:
                     error_message = "New passwords do not match."
@@ -351,7 +346,6 @@ def rate_book(book_id):
                 flash('Rating accepted!')
 
             conn.commit()
-            ()
 
             # Calculate the new book rating based on all user ratings
             update_book_rating(book_id)
@@ -372,7 +366,6 @@ def update_book_rating(book_id):
     # Update the book's rating and number of ratings
     cursor.execute('UPDATE books SET rating = %s, num_ratings = (SELECT COUNT(*) FROM user_ratings WHERE book_id = %s) WHERE id_book = %s', (average_rating, book_id, book_id))
     conn.commit()
-    ()
 
 def get_book_details(book_id):
     # Retrieve book details, including the rating
@@ -380,7 +373,6 @@ def get_book_details(book_id):
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM books WHERE id_book = %s', (book_id,))
     book = cursor.fetchone()
-    ()
     return book
 
 @app.route('/my_ratings')
@@ -389,7 +381,6 @@ def my_ratings():
         user_id = session['user'][0]
         
         # Retrieve the user's ratings from the database
-
         cursor = conn.cursor()
         cursor.execute('''
             SELECT b.id_book, b.title, b.author_first_name, b.author_last_name, b.genre, r.rating, b.rating, b.num_ratings
