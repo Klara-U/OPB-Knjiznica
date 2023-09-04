@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.secret_key = 'secret_key'
 import psycopg2, psycopg2.extensions, psycopg2.extras
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE) # se znebimo problemov s sumniki
-conn = psycopg2.connect(database='opb2023_klarau', host='baza.fmf.uni-lj.si', user='', password='')
+conn = psycopg2.connect(database='opb2023_klarau', host='baza.fmf.uni-lj.si', user='klarau', password='4hoayx6s')
 conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) # onemogocimo transakcije
 
 
@@ -392,13 +392,12 @@ def my_ratings():
 
         cursor = conn.cursor()
         cursor.execute('''
-            SELECT b.id_book, b.title, b.author_first_name, b.author_last_name, b.genre, r.rating, b.num_ratings
+            SELECT b.id_book, b.title, b.author_first_name, b.author_last_name, b.genre, r.rating, b.rating, b.num_ratings
             FROM user_ratings AS r
             INNER JOIN books AS b ON r.book_id = b.id_book
             WHERE r.user_id = %s
         ''', (user_id,))
         user_ratings = cursor.fetchall()
-        ()
 
         return render_template('my_ratings.html', my_ratings=user_ratings)
     else:
