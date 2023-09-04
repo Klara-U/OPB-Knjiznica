@@ -27,3 +27,9 @@ background-image:  repeating-linear-gradient(0deg, #444cf7, #444cf7 1.6px, #e5e5
     border-radius: 0.375rem;
     overflow: hidden;
 }
+
+.booklist table td, table th
+{
+max-width: 300px;
+word-wrap: break-word;
+}
