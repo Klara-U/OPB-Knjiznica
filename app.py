@@ -221,14 +221,16 @@ def view_users():
     else:
         return redirect(url_for('login'))
 
-@app.route('/view_books')
-def view_books():
+@app.route('/view_books/<int:page_id>', defaults={'page_id': 1})
+def view_books(page_id):
     if 'user' in session:
-
         cursor = conn.cursor()
-        cursor.execute('SELECT books.*, users.username FROM books LEFT JOIN users ON books.user_id = users.id ORDER BY books.rating DESC;')
+        cursor.execute('SELECT books.*, users.username FROM books LEFT JOIN users ON books.user_id = users.id ORDER BY books.rating DESC LIMIT %s OFFSET %s;', (50, (page_id - 1) * 50,))
         books = cursor.fetchall()
-        return render_template('book_list.html', books=books)
+        cursor.execute('SELECT COUNT(*) FROM books')
+        entries = cursor.fetchone()[0] // 50
+
+        return render_template('book_list.html', books=books, page_id=page_id, total=entries)
     else:
         return redirect(url_for('login'))
 

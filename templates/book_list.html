@@ -64,6 +64,15 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                        <nav aria-label="Navigation">
+                          <ul class="pagination">
+                              <li class="page-item"><a class="page-link" href="#">{{ page + page_id }}</a></li>
+                            {% for page in range(1, 9) %}
+                              <li class="page-item"><a class="page-link" href="#">{{ page + page_id }}</a></li>
+                            {% endfor %}
+                          </ul>
+                        </nav>
+
                 </div>
             </div>
         </div>
