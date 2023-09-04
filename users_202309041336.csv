@@ -1,0 +1,4 @@
+"id","username","password","name","surname","is_admin","gender","age"
+1,klara,sha256$O4y7ejhw$465bdda140c1a42ab167203915c6fc3d8155c87f29264f3fd811a0db2433cf7d,Klara,Ursič,0,ženska,99
+2,klara2,sha256$VfNmcxgE$e927fdaf0239595ff70e0a2af7733b31521782be71ccbabddca087df6df9102b,Klara,"2",0,,
+3,klara-admin,sha256$O83CFNoC$bdb4d84225df6316bcdc7187981d5d8af0a36e392bcaadbe0a241affd43de6c9,Klara,Admin,1,,

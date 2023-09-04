@@ -1,33 +1,41 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>My Ratings</title>
-</head>
-<body>
-    <h1>My Ratings</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Author</th>
-                <th>Genre</th>
-                <th>My Rating</th>
-                <th>Current Rating</th>
-                <th>Total Ratings</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for book in my_ratings %}
-                <tr>
-                    <td>{{ book[1] }}</td>
-                    <td>{{ book[2] }} {{ book[3] }}</td>
-                    <td>{{ book[4] }}</td>
-                    <td>{{ book[8] }}</td>
-                    <td>{{ book[6] }}</td>
-                    <td>{{ book[7] }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}My Ratings{% endblock %}
+{% block content %}
+<div class="row align-items-center">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header font-weight-bold">
+                My Ratings
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Genre</th>
+                                <th>My Rating</th>
+                                <th>Average Rating</th>
+                                <th>Total Ratings</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in my_ratings %}
+                                <tr>
+                                    <td>{{ book[1] }}</td>
+                                    <td>{{ book[2] }} {{ book[3] }}</td>
+                                    <td>{{ book[4] }}</td>
+                                    <td>⭐ {{ book[5] }}</td>
+                                    <td>⭐ {{ book[5] }}</td>
+                                    <td>{{ book[6] }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

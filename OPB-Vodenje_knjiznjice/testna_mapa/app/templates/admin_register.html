@@ -1,24 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <h1>Admin Registration</h1>
-    <form action="/admin_register" method="post">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required><br><br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br><br>
-        <label for="repeat_password">Repeat Password:</label>
-        <input type="password" id="repeat_password" name="repeat_password" required><br><br>
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required><br><br>
-        <label for="surname">Surname:</label>
-        <input type="text" id="surname" name="surname" required><br><br>
-        <label for="admin_password">Admin Password:</label>
-        <input type="password" id="admin_password" name="admin_password" required><br><br>
-        <input type="submit" value="Register">
-    </form>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Admin Registration{% endblock %}
+{% block content %}
+<div class="row align-items-center">
+    <div class="col-6 offset-3">
+        <div class="card">
+            <div class="card-header font-weight-bold">
+                Admin Registration
+            </div>
+
+            <div class="card-body">
+                <form action="/admin_register" method="post">
+                    <label class="form-label" for="username">Username:</label>
+                    <input class="form-control" type="text" id="username" name="username" required><br>
+                    <label class="form-label" for="password">Password:</label>
+                    <input class="form-control" type="password" id="password" name="password" required><br>
+                    <label class="form-label" for="repeat_password">Repeat Password:</label>
+                    <input class="form-control" type="password" id="repeat_password" name="repeat_password" required><br>
+                    <label class="form-label" for="name">Name:</label>
+                    <input class="form-control" type="text" id="name" name="name" required><br>
+                    <label class="form-label" for="surname">Surname:</label>
+                    <input class="form-control" type="text" id="surname" name="surname" required><br>
+                    <label class="form-label" for="admin_password">Provided Admin Code: <br><small class="fw-light">(for testing use "posebensem")</small></label>
+                    <input class="form-control" type="password" id="admin_password" name="admin_password" required><br>
+                    <input class="btn btn-primary" type="submit" value="Register">
+                </form>
+            </div>
+
+            {% if error_message %}
+                <p class="error">{{ error_message }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,77 +1,29 @@
-/* Global Styles */
+html {
+height: 100%;
+
+}
+
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f0f0f0;
+height: 100%;
+
 }
 
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+row{
+    min-height: 100%;
 }
 
-a {
-    text-decoration: none;
-    color: #337ab7;
+.pattern {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+
+background-color: #e5e5f7;
+opacity: 0.1;
+background-size: 32px 32px;
+background-image:  repeating-linear-gradient(0deg, #444cf7, #444cf7 1.6px, #e5e5f7 1.6px, #e5e5f7);
 }
 
-/* Index Page Styles */
-h1 {
-    text-align: center;
-    margin-top: 50px;
-}
-
-a {
-    display: block;
-    text-align: center;
-    margin-top: 20px;
-}
-
-/* Form Styles */
-form {
-    background-color: #fff;
-    border: 1px solid #ccc;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
-}
-
-label {
-    font-weight: bold;
-}
-
-input[type="text"],
-input[type="password"] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-}
-
-input[type="submit"] {
-    background-color: #337ab7;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-}
-
-/* Profile Page Styles */
-.profile-container {
-    text-align: center;
-    margin-top: 50px;
-}
-
-/* Responsive Styles */
-@media (max-width: 768px) {
-    .container {
-        padding: 10px;
-    }
-
-    form {
-        padding: 15px;
-    }
+.top5{
+    border-radius: 0.375rem;
+    overflow: hidden;
 }

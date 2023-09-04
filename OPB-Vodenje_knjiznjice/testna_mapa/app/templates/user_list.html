@@ -1,32 +1,45 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <h1>User List</h1>
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Username</th>
-            <th>Name</th>
-            <th>Surname</th>
-            <th>Status</th>
-            <th>Gender</th>
-            <th>Age</th>
-        </tr>
-        {% for user in users %}
-            <tr>
-                <td>{{ user[0] }}</td>
-                <td>{{ user[1] }}</td>
-                <td>{{ user[2] }}</td>
-                <td>{{ user[3] }}</td>
-                <td>{{ 'Admin' if user[4] == 1 else 'Client' }}</td>
-                <td>{{ user[5] }}</td>
-                <td>{{ user[6] }}</td>
-            </tr>
-        {% endfor %}
-    </table>
-    <a href="/profile">Back to Profile</a>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}User List{% endblock %}
+{% block content %}
+<div class="row align-items-center">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header font-weight-bold">
+                User List
+            </div>
+
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Name</th>
+                                <th>Surname</th>
+                                <th>Status</th>
+                                <th>Gender</th>
+                                <th>Age</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                                <tr>
+                                    <td>{{ user[0] }}</td>
+                                    <td>{{ user[1] }}</td>
+                                    <td>{{ user[2] }}</td>
+                                    <td>{{ user[3] }}</td>
+                                    <td>{{ 'Admin' if user[4] == 1 else 'Client' }}</td>
+                                    <td>{{ user[5] }}</td>
+                                    <td>{{ user[6] }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="/profile" class="btn btn-primary btn-block">Back to Profile</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

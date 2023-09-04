@@ -1,13 +1,73 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <h1>Welcome to the Site</h1>
-    <a href="{{ url_for('login') }}">Login</a>
-    <a href="{{ url_for('register') }}">Register</a>
-    <a href="{{ url_for('admin_login') }}">Admin Login</a> <!-- Add this line -->
-    <a href="{{ url_for('admin_register') }}">Admin Register</a> <!-- Add this line -->
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Home Page{% endblock %}
+{% block content %}
+<div class="row align-items-center">
+            <div class="col-3">
+        <div class="">
+              <div class="">
+                <div class="table-responsive " >
+                    <table class="table table-light top5">
+                        <thead>
+                            <tr>
+                                <th>5 Top Rated</th>
+                                <th>Ratings</th>
+                                <th>Avg.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in top_rated %}
+                                <tr>
+                                    <td>{{ book[0] }}</td>
+                                    <td>👥 {{ book[1] }}</td>
+                                    <td>⭐ {{ book[2] }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+              </div>
+        </div>
+            </div>
+
+    <div class="col-6">
+        <div class="card">
+              <img src="{{ url_for('static', filename='ozadje.jpg') }}" class="card-img-top" alt="..." >
+              <div class="card-body">
+                <h5 class="card-title">Welcome to the OPB Library!</h5>
+                <p class="card-text">This is a website that helps you find great books! Under "List of books and ratings" you can see all of our books and their ratings by the users of our library.
+                If you find a book you like, you can then reserve it. After you read the book don't forget to leave a review. It helps other users find great books too!
+                </p>
+                <p class="card-text"><small class="text-body-secondary">Used under Unsplash licence. <a href="https://unsplash.com/photos/sfL_QOnmy00">Image link</a></small></p>
+              </div>
+        </div>
+
+</div>
+        <div class="col-3">
+        <div class="">
+              <div class="">
+                <div class="table-responsive">
+                    <table class="table table-light top5">
+                        <thead>
+                            <tr>
+                                <th>5 Most Rated</th>
+                                <th>Ratings</th>
+                                <th>Avg.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in most_reviewed %}
+                                <tr>
+                                    <td>{{ book[0] }}</td>
+                                    <td>👥 {{ book[1] }}</td>
+                                    <td>⭐ {{ book[2] }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+              </div>
+        </div>
+
+</div>
+
+{% endblock %}

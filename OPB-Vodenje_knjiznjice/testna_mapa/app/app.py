@@ -1,10 +1,16 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
+import os
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.secret_key = 'secret_key'
+import psycopg2, psycopg2.extensions, psycopg2.extras
+psycopg2.extensions.register_type(psycopg2.extensions.UNICODE) # se znebimo problemov s sumniki
+conn = psycopg2.connect(database='opb2023_klarau', host='baza.fmf.uni-lj.si', user='klarau', password='4hoayx6s')
+conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) # onemogocimo transakcije
+
 
 # Initialize Flask-Login
 login_manager = LoginManager()
@@ -12,7 +18,7 @@ login_manager.init_app(app)
 
 # Initialize the database
 def initialize_database():
-    conn = sqlite3.connect('app/database.db')
+
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
@@ -36,22 +42,44 @@ def initialize_database():
             status TEXT,
             rating FLOAT DEFAULT 0.0,  -- Initial rating is 0.0
             num_ratings INTEGER DEFAULT 0,  -- Initial number of ratings is 0
-            id INTEGER DEFAULT 0 
+            user_id INTEGER DEFAULT NULL,  
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        );
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS user_ratings (
+            id INTEGER PRIMARY KEY,
+            user_id INTEGER,
+            book_id INTEGER,
+            rating INTEGER,
+            FOREIGN KEY(user_id) REFERENCES users(id),
+            FOREIGN KEY(book_id) REFERENCES books(id_book)
         );
     ''')
 
     conn.commit()
-    conn.close()
+    ()
 
 initialize_database()
 
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+
+    cursor = conn.cursor()
+    cursor.execute('SELECT b.title, b.num_ratings, b.rating  FROM books b ORDER BY rating DESC LIMIT 5')
+    top_rated = cursor.fetchall()
+    cursor.execute('SELECT b.title, b.num_ratings, b.rating FROM books b ORDER BY num_ratings DESC LIMIT 5')
+    most_reviewed = cursor.fetchall()
+    ()
+
+    return render_template('index.html', top_rated=top_rated, most_reviewed=most_reviewed)
 
 @app.route('/admin_register', methods=['GET', 'POST'])
 def admin_register():
+    if 'user' in session:
+        flash('Already logged in. Redirecting...')
+        return redirect(url_for('profile')) #if this part is blocked you always have to sign in even if you do not logout
     if request.method == 'POST':
         if request.form['admin_password'] == 'posebensem':
             username = request.form['username']
@@ -63,31 +91,35 @@ def admin_register():
             # Check if passwords match
             if password == repeat_password:
                 hashed_password = generate_password_hash(password, method='sha256')
-                conn = sqlite3.connect('app/database.db')
+
                 cursor = conn.cursor()
-                cursor.execute('INSERT INTO users (username, password, name, surname, is_admin) VALUES (?, ?, ?, ?, ?)',
+                cursor.execute('INSERT INTO users (username, password, name, surname, is_admin) VALUES (%s, %s, %s, %s, %s)',
                             (username, hashed_password, name, surname, is_admin))
                 conn.commit()
-                conn.close()
+                ()
                 return redirect(url_for('login'))
             else:
                 return "Passwords do not match."
         else:
-            return "Admin registration password is incorrect."
+            return "Admin registration code is incorrect."
 
     return render_template('admin_register.html')
 
 @app.route('/admin_login', methods=['GET', 'POST'])
 def admin_login():
+    if 'user' in session:
+        flash('Already logged in. Redirecting...')
+        return redirect(url_for('profile')) #if this part is blocked you always have to sign in even if you do not logout
+
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
 
-        conn = sqlite3.connect('app/database.db')
+
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
+        cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
         user = cursor.fetchone()
-        conn.close()
+        ()
 
         if user and check_password_hash(user[2], password) and user[5] == 1:
             session['user'] = user
@@ -97,29 +129,23 @@ def admin_login():
 
     return render_template('admin_login.html')
 
-@app.route('/admin_dashboard')
-def admin_dashboard():
-    if 'user' in session and session['user'][5] == 1:
-        return render_template('admin_dashboard.html')
-    else:
-        return redirect(url_for('login'))
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error_message = None
     
     if 'user' in session:
+        flash('Already logged in. Redirecting...')
         return redirect(url_for('profile')) #if this part is blocked you always have to sign in even if you do not logout
     
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
 
-        conn = sqlite3.connect('app/database.db')
+
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
+        cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
         user = cursor.fetchone()
-        conn.close()
+        ()
 
         if user and check_password_hash(user[2], password):
             session['user'] = user
@@ -131,6 +157,10 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if 'user' in session:
+        flash('Already logged in. Redirecting...')
+        return redirect(url_for('profile')) #if this part is blocked you always have to sign in even if you do not logout
+
     if request.method == 'POST':
         # Extract user input
         username = request.form['username']
@@ -144,12 +174,12 @@ def register():
             hashed_password = generate_password_hash(password, method='sha256')
 
             # Insert user data into the database
-            conn = sqlite3.connect('app/database.db')
+
             cursor = conn.cursor()
-            cursor.execute('INSERT INTO users (username, password, name, surname) VALUES (?, ?, ?, ?)',
+            cursor.execute('INSERT INTO users (username, password, name, surname) VALUES (%s, %s, %s, %s)',
                            (username, hashed_password, name, surname))
             conn.commit()
-            conn.close()
+            ()
 
             return redirect(url_for('login'))
         else:
@@ -180,11 +210,11 @@ def load_user(user_id):
 @app.route('/view_users')
 def view_users():
     if 'user' in session and session['user'][5] == 1:  # Check if user is admin
-        conn = sqlite3.connect('app/database.db')
+
         cursor = conn.cursor()
         cursor.execute('SELECT id, username, name, surname, is_admin, gender, age FROM users')
         users = cursor.fetchall()
-        conn.close()
+        ()
 
         return render_template('user_list.html', users=users)
     else:
@@ -193,12 +223,11 @@ def view_users():
 @app.route('/view_books')
 def view_books():
     if 'user' in session:
-        conn = sqlite3.connect('app/database.db')
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM books')
-        books = cursor.fetchall()
-        conn.close()
 
+        cursor = conn.cursor()
+        cursor.execute('SELECT books.*, users.username FROM books LEFT JOIN users ON books.user_id = users.id;')
+        books = cursor.fetchall()
+        ()
         return render_template('book_list.html', books=books)
     else:
         return redirect(url_for('login'))
@@ -206,20 +235,31 @@ def view_books():
 @app.route('/reserve_book/<int:book_id>', methods=['POST'])
 def reserve_book(book_id):
     if 'user' in session:
-        conn = sqlite3.connect('app/database.db')
-        cursor = conn.cursor()
-        cursor.execute('SELECT status FROM books WHERE id_book = ?', (book_id,))
-        status = cursor.fetchone()[0]
 
-        if status == 'free':
-            cursor.execute('UPDATE books SET status = ? WHERE id_book = ?', ('reserved', book_id))
-            cursor.execute('UPDATE books SET id = ? WHERE id_book = ?', (current_user, book_id))
+        cursor = conn.cursor()
+        cursor.execute('SELECT status, user_id FROM books WHERE id_book = %s', (book_id,))
+        status = cursor.fetchone()
+        reserved_by = status[1]
+        status = status[0]
+        user_id = session['user'][0]
+
+        if status == 'free' and reserved_by is None:
+            cursor.execute('UPDATE books SET status = %s WHERE id_book = %s', ('reserved', book_id))
+            cursor.execute('UPDATE books SET user_id = %s WHERE id_book = %s', (user_id, book_id))
             conn.commit()
-            conn.close()
-            return redirect(url_for('book_list'))
+            ()
+            flash('Reservation successful!')
+        elif status == 'reserved' and reserved_by == user_id:
+            cursor.execute('UPDATE books SET status = %s WHERE id_book = %s', ('free', book_id))
+            cursor.execute('UPDATE books SET user_id = %s WHERE id_book = %s', (None, book_id))
+            conn.commit()
+            ()
+            flash('Return successful!')
         else:
-            conn.close()
-            return "Book is not available for reservation."
+            ()
+            flash('Sorry! You did not reserve this book.')
+
+        return redirect(url_for('view_books'))
     else:
         return redirect(url_for('login'))
 
@@ -238,11 +278,11 @@ def edit_profile():
             gender = request.form['gender']
             age = request.form['age']
 
-            conn = sqlite3.connect('app/database.db')
+
             cursor = conn.cursor()
-            cursor.execute('UPDATE users SET gender = ?, age = ? WHERE id = ?', (gender, age, session['user'][0]))
+            cursor.execute('UPDATE users SET gender = %s, age = %s WHERE id = %s', (gender, age, session['user'][0]))
             conn.commit()
-            conn.close()
+            ()
 
             # Update the session data immediately
             session['user'] = (session['user'][0], session['user'][1], session['user'][2], session['user'][3], session['user'][4], session['user'][5], gender, age)
@@ -265,11 +305,11 @@ def change_password():
                 if new_password == repeat_new_password:
                     hashed_password = generate_password_hash(new_password, method='sha256')
 
-                    conn = sqlite3.connect('app/database.db')
+
                     cursor = conn.cursor()
-                    cursor.execute('UPDATE users SET password = ? WHERE id = ?', (hashed_password, session['user'][0]))
+                    cursor.execute('UPDATE users SET password = %s WHERE id = %s', (hashed_password, session['user'][0]))
                     conn.commit()
-                    conn.close()
+                    ()
                     return redirect(url_for('my_profile'))
                 else:
                     error_message = "New passwords do not match."
@@ -295,20 +335,23 @@ def rate_book(book_id):
             new_rating = float(request.form['rating'])
 
             # Check if the user has already rated this book
-            conn = sqlite3.connect('app/database.db')
+
             cursor = conn.cursor()
-            cursor.execute('SELECT * FROM user_ratings WHERE user_id = ? AND book_id = ?', (user_id, book_id))
+            cursor.execute('SELECT * FROM user_ratings WHERE user_id = %s AND book_id = %s', (user_id, book_id))
             existing_rating = cursor.fetchone()
 
             if existing_rating:
                 # Update the existing rating
-                cursor.execute('UPDATE user_ratings SET rating = ? WHERE id = ?', (new_rating, existing_rating[0]))
+                cursor.execute('UPDATE user_ratings SET rating = %s WHERE id = %s', (new_rating, existing_rating[0]))
+                flash('You have already rated this book. Your rating has been updated!')
+
             else:
                 # Insert a new rating
-                cursor.execute('INSERT INTO user_ratings (user_id, book_id, rating) VALUES (?, ?, ?)', (user_id, book_id, new_rating))
+                cursor.execute('INSERT INTO user_ratings (user_id, book_id, rating) VALUES (%s, %s, %s)', (user_id, book_id, new_rating))
+                flash('Rating accepted!')
 
             conn.commit()
-            conn.close()
+            ()
 
             # Calculate the new book rating based on all user ratings
             update_book_rating(book_id)
@@ -321,23 +364,23 @@ def rate_book(book_id):
 
 def update_book_rating(book_id):
     # Calculate the new book rating based on user ratings
-    conn = sqlite3.connect('app/database.db')
+
     cursor = conn.cursor()
-    cursor.execute('SELECT AVG(rating) FROM user_ratings WHERE book_id = ?', (book_id,))
+    cursor.execute('SELECT AVG(rating) FROM user_ratings WHERE book_id = %s', (book_id,))
     average_rating = cursor.fetchone()[0]
 
     # Update the book's rating and number of ratings
-    cursor.execute('UPDATE books SET rating = ?, num_ratings = (SELECT COUNT(*) FROM user_ratings WHERE book_id = ?) WHERE id = ?', (average_rating, book_id, book_id))
+    cursor.execute('UPDATE books SET rating = %s, num_ratings = (SELECT COUNT(*) FROM user_ratings WHERE book_id = %s) WHERE id_book = %s', (average_rating, book_id, book_id))
     conn.commit()
-    conn.close()
+    ()
 
 def get_book_details(book_id):
     # Retrieve book details, including the rating
-    conn = sqlite3.connect('app/database.db')
+
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM books WHERE id = ?', (book_id,))
+    cursor.execute('SELECT * FROM books WHERE id_book = %s', (book_id,))
     book = cursor.fetchone()
-    conn.close()
+    ()
     return book
 
 @app.route('/my_ratings')
@@ -346,18 +389,18 @@ def my_ratings():
         user_id = session['user'][0]
         
         # Retrieve the user's ratings from the database
-        conn = sqlite3.connect('app/database.db')
+
         cursor = conn.cursor()
         cursor.execute('''
-            SELECT b.id, b.title, b.author_first_name, b.author_last_name, b.genre, r.rating, b.num_ratings
+            SELECT b.id_book, b.title, b.author_first_name, b.author_last_name, b.genre, r.rating, b.num_ratings
             FROM user_ratings AS r
-            INNER JOIN books AS b ON r.book_id = b.id
-            WHERE r.user_id = ?
+            INNER JOIN books AS b ON r.book_id = b.id_book
+            WHERE r.user_id = %s
         ''', (user_id,))
         user_ratings = cursor.fetchall()
-        conn.close()
+        ()
 
-        return render_template('my_ratings.html', user_ratings=user_ratings)
+        return render_template('my_ratings.html', my_ratings=user_ratings)
     else:
         return redirect(url_for('login'))
 

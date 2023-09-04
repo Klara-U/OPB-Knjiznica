@@ -1,51 +1,58 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Reserve Book</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <h1>Reserve Book</h1>
-    <p>Book Details:</p>
-    <table>
-        <tr>
-            <th>Title</th>
-            <th>Author First Name</th>
-            <th>Author Last Name</th>
-            <th>Genre</th>
-            <th>Status</th>
-            <th>Rating</th>
-            <th>Number of Ratings</th>
-            <th>Client ID</th>
-        </tr>
-        <tr>
-            <td>{{ book[1] }}</td>
-            <td>{{ book[2] }}</td>
-            <td>{{ book[3] }}</td>
-            <td>{{ book[4] }}</td>
-            <td>{{ book[5] }}</td>
-            <td>{{ book[6] }}</td>
-            <td>{{ book[7] }}</td>
-            <td>{{ book[8] }}</td> <!-- Client ID if reserved, else display N/A -->
-        </tr>
-    </table>
+{% extends "base.html" %}
+{% block title %}Reserve Book{% endblock %}
+{% block content %}
+<div class="row align-items-center">
+    <div class="col-6 offset-3">
+        <div class="card">
+            <div class="card-header font-weight-bold">
+                Reserve Book
+            </div>
+            <div class="card-body">
+                <p>Book Details:</p>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Title</th>
+                            <th>Author First Name</th>
+                            <th>Author Last Name</th>
+                            <th>Genre</th>
+                            <th>Status</th>
+                            <th>Rating</th>
+                            <th>Number of Ratings</th>
+                            <th>Client ID</th>
+                        </tr>
+                        <tr>
+                            <td>{{ book[1] }}</td>
+                            <td>{{ book[2] }}</td>
+                            <td>{{ book[3] }}</td>
+                            <td>{{ book[4] }}</td>
+                            <td>{{ book[5] }}</td>
+                            <td>{{ book[6] }}</td>
+                            <td>{{ book[7] }}</td>
+                            <td>{{ book[8] if book[5] == 'reserved' else 'N/A' }}</td>
+                        </tr>
+                    </table>
+                </div>
 
-    {% if book[5] == 'free' %}
-        <form method="POST" action="/reserve_book/{{ book[0] }}">
-            <input type="hidden" name="action" value="reserve">
-            <input type="submit" value="Reserve">
-        </form>
-    {% elif book[5] == 'reserved' %}
-        {% if book[8] == current_user_id %}
-            <form method="POST" action="/reserve_book/{{ book[0] }}">
-                <input type="hidden" name="action" value="cancel">
-                <input type="submit" value="Cancel Reservation">
-            </form>
-        {% else %}
-            <p>This book is already reserved by another user.</p>
-        {% endif %}
-    {% else %}
-        <p>This book is not available for reservation.</p>
-    {% endif %}
-</body>
-</html>
+                {% if book[5] == 'free' %}
+                    <form method="POST" action="/reserve_book/{{ book[0] }}">
+                        <input type="hidden" name="action" value="reserve">
+                        <button type="submit" class="btn btn-primary">Reserve</button>
+                    </form>
+                {% elif book[5] == 'reserved' %}
+                    {% if book[8] == current_user_id %}
+                        <form method="POST" action="/reserve_book/{{ book[0] }}">
+                            <input type="hidden" name="action" value="cancel">
+                            <button type="submit" class="btn btn-danger">Cancel Reservation</button>
+                        </form>
+                    {% else %}
+                        <p>This book is already reserved by another user.</p>
+                    {% endif %}
+                {% else %}
+                    <p>This book is not available for reservation.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

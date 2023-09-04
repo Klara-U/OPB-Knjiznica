@@ -1,17 +1,25 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="admin-dashboard">
-        <h1>Admin Dashboard</h1>
-        <ul>
-            <li><a href="/view_books">View Book List</a></li>
-            <li><a href="/view_users">View User List</a></li>
-            <!-- Add more admin-specific options here -->
-        </ul>
-        <a href="/">Home</a>
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="row align-items-center">
+    <div class="col-6 offset-3">
+        <div class="card">
+            <div class="card-header font-weight-bold">
+                Admin Dashboard
+            </div>
+            <div class="card-body">
+                <div class="container">
+                    <ul class="list-group">
+                        <li class="list-group-item"><a href="/view_books">View Book List</a></li>
+                        <li class="list-group-item"><a href="/view_users">View User List</a></li>
+                        <!-- Add more admin-specific options here -->
+                    </ul>
+                </div>
+                <div class="container mt-3">
+                    <a href="/" class="btn btn-primary btn-block">Home</a>
+                </div>
+            </div>
+        </div>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

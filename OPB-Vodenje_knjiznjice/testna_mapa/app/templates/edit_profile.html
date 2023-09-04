@@ -1,19 +1,28 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="profile-container">
-        <h1>Edit Profile</h1>
-        <form action="/edit_profile" method="post">
-            <label for="gender">Gender:</label>
-            <input type="text" id="gender" name="gender" value="{{ user[6] }}"><br><br>
-            <label for="age">Age:</label>
-            <input type="text" id="age" name="age" value="{{ user[7] }}"><br><br>
-            <input type="submit" value="Save Changes">
-        </form>
-        <a href="/my_profile">Back to My Profile</a>
+{% extends "base.html" %}
+{% block title %}Edit Profile{% endblock %}
+{% block content %}
+<div class="row align-items-center">
+    <div class="col-6 offset-3">
+        <div class="card">
+            <div class="card-header font-weight-bold">
+                Edit Profile
+            </div>
+
+            <div class="card-body">
+                <form action="/edit_profile" method="post">
+                    <div class="mb-3">
+                        <label for="gender" class="form-label">Gender:</label>
+                        <input type="text" id="gender" name="gender" class="form-control" value="{{ user[6] }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="age" class="form-label">Age:</label>
+                        <input type="text" id="age" name="age" class="form-control" value="{{ user[7] }}">
+                    </div>
+                    <input type="submit" class="btn btn-primary btn-block mb-2" value="Save Changes">
+                </form>
+                <a href="/my_profile" class="btn btn-secondary btn-block mb-2">Back to My Profile</a>
+            </div>
+        </div>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}
