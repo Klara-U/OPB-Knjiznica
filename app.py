@@ -225,7 +225,7 @@ def view_books():
     if 'user' in session:
 
         cursor = conn.cursor()
-        cursor.execute('SELECT books.*, users.username FROM books LEFT JOIN users ON books.user_id = users.id;')
+        cursor.execute('SELECT books.*, users.username FROM books LEFT JOIN users ON books.user_id = users.id ORDER BY books.rating DESC;')
         books = cursor.fetchall()
         ()
         return render_template('book_list.html', books=books)
