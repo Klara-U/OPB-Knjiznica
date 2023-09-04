@@ -1,1 +1,0 @@
-# OPB-Vodenje_knjiznjice
