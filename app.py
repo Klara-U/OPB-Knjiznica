@@ -202,7 +202,6 @@ class User(UserMixin):
     def __init__(self, id):
         self.id = id
 
-    
 # Define the user loader function
 @login_manager.user_loader
 def load_user(user_id):
@@ -352,7 +351,6 @@ def rate_book(book_id):
             new_rating = float(request.form['rating'])
 
             # Check if the user has already rated this book
-
             cursor = conn.cursor()
             cursor.execute('SELECT * FROM user_ratings WHERE user_id = %s AND book_id = %s', (user_id, book_id))
             existing_rating = cursor.fetchone()

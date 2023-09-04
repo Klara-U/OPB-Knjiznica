@@ -2,4 +2,4 @@
 admin se registrira z geslom "posebensem"
 
 Spletna stran:
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Klara-U/OPB-Knjiznica/main)
+[![Binder]](https://knjiznica-13iecmeo-1d10a4646542.herokuapp.com/)
