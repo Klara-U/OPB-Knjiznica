@@ -16,7 +16,7 @@ cursor = conn.cursor()
 
 import psycopg2, psycopg2.extensions, psycopg2.extras
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE) # se znebimo problemov s sumniki
-conn = psycopg2.connect(database='opb2023_klarau', host='baza.fmf.uni-lj.si', user='klarau', password='4hoayx6s')
+conn = psycopg2.connect(database='opb2023_klarau', host='baza.fmf.uni-lj.si', user='', password='')
 conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) # onemogocimo transakcije
 cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
