@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}My reservations{% endblock %}
+{% block content %}
+<div class="row align-items-center">
+    <div class="col-12">
+        <div class="card overflow-auto">
+            <div class="card-header font-weight-bold">
+                My reservations
+            </div>
+
+            <div class="card-body booklist">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped" style="">
+                        <thead>
+                            <tr>
+                                <th>Book ID</th>
+                                <th>Title</th>
+                                <th>Author First Name</th>
+                                <th>Author Last Name</th>
+                                <th>Genre</th>
+                                <th>Status</th>
+                                <th>Rating</th>
+                                <th>Number of Ratings</th>
+                                <th>Actions</th>
+                                <th>Reserved by</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in books %}
+                                <tr>
+                                    <td>{{ book[0] }}</td>
+                                    <td>{{ book[1] }}</td>
+                                    <td>{{ book[2] }}</td>
+                                    <td>{{ book[3] }}</td>
+                                    <td>{{ book[4] }}</td>
+                                    <td>{{ book[5] }}</td>
+                                    <td>⭐ {{ book[6] }}</td>
+                                    <td>👥 {{ book[7] }}</td>
+                                    <td>
+                                        {% if book[5] == 'free' %}
+                                            <form method="POST" action="/reserve_book/{{ book[0] }}">
+                                                <input type="hidden" name="id_book" value="{{ book[0] }}">
+                                                <input type="hidden" name="action" value="reserve">
+                                                <input type="submit" class="btn btn-primary mb-1" value="Reserve">
+                                            </form>
+                                        {% elif book[5] == 'reserved' %}
+                                            {% if book["id"] == id %}
+                                                <form method="POST" action="/reserve_book/{{ book[0] }}">
+                                                    <input type="hidden" name="id_book" value="{{ book[0] }}">
+                                                    <input type="hidden" name="action" value="reserve">
+                                                    <input type="submit" class="btn btn-danger mb-1" value="Return">
+                                                </form>
+                                            {% else %}
+                                                <span class="badge bg-info">Reserved</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge bg-danger">Not Available</span>
+                                        {% endif %}
+                                        <a href="/rate_book/{{ book[0] }}" class="btn btn-secondary" tabindex="-1" role="button" aria-disabled="true">Rate</a>
+
+                                    </td>
+                                    <td>{{ book[9] }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

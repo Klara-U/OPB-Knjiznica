@@ -65,11 +65,16 @@
                         </tbody>
                     </table>
                         <nav aria-label="Navigation">
-                          <ul class="pagination">
-                              <li class="page-item"><a class="page-link" href="#">{{ page + page_id }}</a></li>
-                            {% for page in range(1, 9) %}
-                              <li class="page-item"><a class="page-link" href="#">{{ page + page_id }}</a></li>
-                            {% endfor %}
+                          <ul class="pagination justify-content-center">
+                              <li class="page-item"><a class="page-link" href="/view_books?page_id={{page_id - 1}}" tabindex="-1" aria-disabled="true">Previous</a></li>
+                              <li class="page-item active"><a class="page-link" href="/view_books?page_id={{page_id }}">{{page_id}}</a></li>
+                                    {% for page in range(1, 8) %}
+                                <li class="page-item "><a class="page-link" href="/view_books?page_id={{page_id + page}}">{{page_id + page}}</a></li>
+                                    {% endfor %}
+                               <li class="page-item">
+                                  <a class="page-link" href="/view_books?page_id={{page_id+1}}">Next</a>
+                                    </li>
+
                           </ul>
                         </nav>
 

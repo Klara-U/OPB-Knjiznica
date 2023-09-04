@@ -106,7 +106,7 @@ def admin_login():
 
 
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM users WHERE username = %s', (username))
+        cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
         user = cursor.fetchone()
 
         if user and check_password_hash(user[2], password) and user[5] == 1:
@@ -221,18 +221,38 @@ def view_users():
     else:
         return redirect(url_for('login'))
 
-@app.route('/view_books/<int:page_id>', defaults={'page_id': 1})
-def view_books(page_id):
+@app.route('/view_books/')
+def view_books():
     if 'user' in session:
+        page_id = request.args.get('page_id', default=1, type=int)
         cursor = conn.cursor()
+
+        cursor.execute('SELECT COUNT(*) FROM books')
+        max_pages = cursor.fetchone()[0] // 50
+
+        if page_id < 1 or page_id > (max_pages - 1):
+            page_id = 1
+
         cursor.execute('SELECT books.*, users.username FROM books LEFT JOIN users ON books.user_id = users.id ORDER BY books.rating DESC LIMIT %s OFFSET %s;', (50, (page_id - 1) * 50,))
         books = cursor.fetchall()
-        cursor.execute('SELECT COUNT(*) FROM books')
-        entries = cursor.fetchone()[0] // 50
 
-        return render_template('book_list.html', books=books, page_id=page_id, total=entries)
+        return render_template('book_list.html', books=books, page_id=page_id)
     else:
         return redirect(url_for('login'))
+
+
+@app.route('/my_reservations/')
+def view_reservations():
+    if 'user' in session:
+        user_id = session['user'][0]
+        cursor = conn.cursor()
+        cursor.execute('SELECT books.*, users.username FROM books LEFT JOIN users ON books.user_id = users.id WHERE books.user_id = %s ORDER BY books.rating', (user_id,))
+        books = cursor.fetchall()
+
+        return render_template('reservation_list.html', books=books)
+    else:
+        return redirect(url_for('login'))
+
 
 @app.route('/reserve_book/<int:book_id>', methods=['POST'])
 def reserve_book(book_id):
