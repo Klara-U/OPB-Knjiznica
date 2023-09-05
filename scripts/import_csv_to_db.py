@@ -1,4 +1,3 @@
-import sqlite3
 import csv
 import os
 
@@ -7,12 +6,6 @@ script_dir = os.path.dirname(__file__)
 
 # Construct the full path to the CSV file
 csv_file = os.path.join(script_dir, '..', 'books_data.csv')  # Assumes the CSV file is in the root directory
-
-# Connect to your SQLite database
-DATABASE = os.path.join(script_dir,'..', 'database2.db')
-print(DATABASE)
-conn = sqlite3.connect(DATABASE)
-cursor = conn.cursor()
 
 import psycopg2, psycopg2.extensions, psycopg2.extras
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE) # se znebimo problemov s sumniki
